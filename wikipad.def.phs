@@ -1,0 +1,46 @@
+<?php
+  # wikipad.def.phs
+  #
+  # This script contains hard-coded defines that
+  # may contain parts of the user-defined
+  # configuration. This lets people with a better
+  # understanding of the matter modify the behaviour
+  # even more
+
+  /* DO NOT EDIT BELOW THIS LINE IF YOU DO NOT KNOW WHAT YOU ARE DOING! */
+
+  if (0 === strlen(PAD_SUB_NAME)) {
+    define("PAD_PREFIX", "");
+  } else { // if (0 === strlen(PAD_SUB_NAME))
+    define("PAD_PREFIX", PAD_SUB_NAME . "!");
+  } // if (0 === strlen(PAD_SUB_NAME))
+
+  if (0 === strlen(WIKI_SUB_NAME)) {
+    define("WIKI_SUB_DIR", WIKI_DATA_DIR . "pages/");
+  } else { // if (0 === strlen(WIKI_SUB_NAME))
+    define("WIKI_SUB_DIR", WIKI_DATA_DIR . "pages/" . WIKI_SUB_NAME . "/");
+  } // if (0 === strlen(WIKI_SUB_NAME))
+
+  define("PAD_URL_A", PAD_URL . "p/" . PAD_PREFIX);
+  define("PAD_URL_B", "/export/dokuwiki");
+  
+  define("WIKI_SUB_EXT", ".txt");
+
+  define("PAD_IGNORE_PREFIX",  ".");
+  define("PAD_IGNORE_CONTENT", "[.ignore]");
+  define("PAD_REMOVE_CONTENT", "[.remove]");
+
+  define("HTTP_AGENT",   "wikipad.phs");
+  define("HTTP_SUCCESS", 200);
+  define("HTTP_TIMEOUT", 5);
+
+  /* DO NOT EDIT BELOW THIS LINE! */
+
+  define("PAD_FIELD_PADNAMES",  "padnames");
+  define("PAD_FIELD_REVISIONS", "revisions");
+  
+  define("PAD_SQL_PADNAMES", "SELECT LOWER(SUBSTRING(store.key, LENGTH('pad:" . PAD_PREFIX . "')+1)) AS " . PAD_FIELD_PADNAMES . " FROM store WHERE (LOCATE(LOWER('pad:" . PAD_PREFIX . "'), LOWER(store.key)) = 1) AND (LOCATE(':', SUBSTRING(LOWER(store.key), LENGTH('pad:" . PAD_PREFIX . "')+1)) = 0);");
+
+  define("PAD_SQL_REVISIONS_A", "SELECT COUNT(*) AS " . PAD_FIELD_REVISIONS . " FROM store WHERE (LOCATE(LOWER('pad:" . PAD_PREFIX);
+  define("PAD_SQL_REVISIONS_B", ":revs:'), LOWER(store.key)) = 1);");
+?>

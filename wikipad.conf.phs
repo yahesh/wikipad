@@ -1,0 +1,55 @@
+<?php
+  # wikipad.conf.phs
+  #
+  # This script contains the user-defined configuration
+  # of the synchronization script. Each and every
+  # configuration item has a short description that
+  # explains the use of the item.
+
+  // define MySQL configuration
+  // the db user should only have read-only access
+  define("PAD_DB_HOST", "<host>");
+  define("PAD_DB_USER", "<user>");
+  define("PAD_DB_PASS", "<password>");
+  define("PAD_DB_DB",   "<db-name>");
+  define("PAD_DB_PORT", 3306);
+  define("PAD_DB_SOCK", "");
+
+  // define base URL of Etherpad-Lite
+  // do not forget the trailing slash
+  define("PAD_URL", "http://localhost:10101/");
+
+  // define prefix of etherpads that will be synced
+  // only etherpads that start with the PAD_SUB_NAME
+  // followed by an exclamation mark will be synced
+  // (e.g. PAD_SUB_NAME="wiki", then "wiki!start"
+  // will be synced but not "example!start")
+  // pads that start with a dot after the exclamation
+  // mark will be ignoed as well (e.g. "wiki!.start")
+  // may be empty or only contain [0-9a-zA-Z\.\-\_]
+  // all pads will be synched when empty
+  define("PAD_SUB_NAME", "");
+
+  // define path of DokuWiki "data" folder
+  // do not forget the trailing slash
+  define("WIKI_DATA_DIR", "/path/to/dokuwiki/data/");
+
+  // define namespace of DokuWiki where etherpads will be synced to
+  // (e.g. WIKI_SUB_NAME="pad" and PAD_SUB_NAME="wiki", then
+  // "wiki!start" will be synced to "pad:start")
+  // may be empty or only contain [0-9a-zA-Z\.\-\_]
+  // no namespace will be used when empty
+  define("WIKI_SUB_NAME", "");
+
+  // define path of wikipad cookie jar file
+  // this file must be writable by wikipad
+  // in order to reuse sessions
+  define("SYNC_COOKIE_FILE", dirname(__FILE__) . "/wikipad.cookies");
+
+  // define path of wikipad status folder
+  // do not forget the trailing slash
+  define("SYNC_STATUS_DIR", dirname(__FILE__) . "/status/");
+
+  // define timeout for PHP execution
+  define("TIMEOUT", 180); // 3 minutes by default
+?>

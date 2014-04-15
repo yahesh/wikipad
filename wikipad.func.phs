@@ -1,0 +1,131 @@
+<?php
+  # wikipad.func.phs
+  #
+  # This script contains helper functions that
+  # are used later on. These should not contain
+  # constant strings.
+
+  /* DO NOT EDIT BELOW THIS LINE! */
+
+  // return content of a given URL
+  function getURL($url) {
+    $options = array(
+      CURLOPT_COOKIEFILE     => SYNC_COOKIE_FILE,
+      CURLOPT_COOKIEJAR      => SYNC_COOKIE_FILE,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_TIMEOUT        => HTTP_TIMEOUT,
+      CURLOPT_USERAGENT      => HTTP_AGENT,
+      CURLOPT_VERBOSE        => false
+    );
+
+    $curl = curl_init($url);
+    curl_setopt_array($curl, $options);
+    $content = curl_exec($curl);
+    $header = curl_getinfo($curl);
+    curl_close($curl);
+
+    $result = NULL;
+    if (HTTP_SUCCESS === $header["http_code"]) {
+      $result = $content;
+    } // if (HTTP_SUCCESS === $header["http_code"])
+
+    return $result;
+  } // function getURL($url)
+
+  // check if a directory exists
+  // try to create if it is doesn't
+  function checkDir($dir) {
+    $result = is_dir($dir);
+
+    if (!$result) {
+      if (!file_exists($dir)) {
+        $result = mkdir($dir, 0755, true);
+      } // if (!file_exists($dir))
+    } // if (!$result)
+
+    return $result;
+  } // function checkDir($dir)
+
+  // check if a file exists and is writable
+  // try to create if it is doesn't
+  function checkFile($file) {
+    return touch($file);
+  }
+
+  // check if connection to db works
+  function checkMySQL($host, $user, $pass, $db, $port, $sock) {
+    $result = false;
+
+    $connection = new mysqli($host, $user, $pass, $db, $port, $sock);
+
+    if (NULL === $connection->connect_error) {
+      $connection->close();
+
+      $result = true;
+    } // if (NULL === $connection->connect_error)
+
+    return $result;
+  } // function checkMySQL($host, $user, $pass, $db, $port, $sock)
+
+  // check if a given name only contains selected characters
+  // user-configured names have to adhere this
+  function checkName($name) {
+    return (1 === preg_match("/^([0-9a-zA-Z\.\-\_])*$/", $name));
+  } // function checkName($name)
+
+  // check if a given URL is reachable
+  function checkURL($url) {
+    return (NULL !== getURL($url));
+  } // function checkURL($url)
+
+  // check several preconditions
+  function checkPreconditions() {
+    // start by setting our timeout
+    set_time_limit(TIMEOUT);
+
+    // check that names are alphanumerics
+    $namesMatch = false;
+    if (checkName(PAD_SUB_NAME)) {
+      if (checkName(WIKI_SUB_NAME)) {
+        $namesMatch = true;
+      } // if (checkName(WIKI_SUB_NAME))
+    } // if (checkName(PAD_SUB_NAME))
+
+    // check that all folders exist
+    // create them if necessary
+    $dirsExist = false;
+    if ($namesMatch) {
+      if (checkDir(WIKI_SUB_DIR)) {
+        if (checkDir(SYNC_STATUS_DIR)) {
+          $dirsExist = true;
+        } // if (checkDir(SYNC_STATUS_DIR))
+      } // if (checkDir(WIKI_SUB_DIR))
+    } // if ($namesMatch)
+
+    // check that files are writable
+    $filesWritable = false;
+    if ($namesMatch && $dirsExist) {
+      if (checkFile(SYNC_COOKIE_FILE)) {
+        $filesWritable = true;
+      } // if (checkFile(SYNC_COOKIE_FILE))
+    } // if ($namesMatch && $dirsExist)
+
+    // check that URLs are reachable
+    $urlsWork = false;
+    if ($namesMatch && $dirsExist && $filesWritable) {
+      if (checkURL(PAD_URL)) {
+        $urlsWork = true;
+      } // if (checkURL(PAD_URL))
+    } // if ($namesMatch && $dirsExist && $filesWritable)
+
+    // check that MySQL connections work
+    $dbsWork = false;
+    if ($namesMatch && $dirsExist && $filesWritable && $urlsWork) {
+      if (checkMySQL(PAD_DB_HOST, PAD_DB_USER, PAD_DB_PASS, PAD_DB_DB, PAD_DB_PORT, PAD_DB_SOCK)) {
+        $dbsWork = true;
+      } // if (checkMySQL(PAD_DB_HOST, PAD_DB_USER, PAD_DB_PASS, PAD_DB_DB, PAD_DB_PORT, PAD_DB_SOCK))
+    } // if ($namesMatch && $dirsExist && $filesWritable && $urlsWork)
+
+    return ($namesMatch && $dirsExist && $filesWritable && $urlsWork);
+  } // function checkPreconditions()
+?>

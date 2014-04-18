@@ -28,7 +28,7 @@
         if (false !== $padnames_query) {
           $padnames_array = NULL; // default
 
-          do { // while (NULL !== $pads);
+          do { // while (NULL !== $padnames_array);
             $padnames_array = $padnames_query->fetch_assoc();
 
             if (NULL !== $padnames_array) {
@@ -107,7 +107,7 @@
                 } // if (0 !== strpos($padnames, PAD_IGNORE_PREFIX))
               } // if (checkName($padnames))
             } // if (NULL !== $padnames_array)
-          } while (NULL !== $pads);
+          } while (NULL !== $padnames_array);
 
           $padnames_query->free();
         } // if (false !== $padnames_query)

@@ -52,4 +52,9 @@
 
   // define timeout for PHP execution
   define("TIMEOUT", 180); // 3 minutes by default
+
+  // define user and group that owns the files
+  // this enhances the security
+  define("PROCESS_GROUP", "<uid>");
+  define("PROCESS_USER",  "<gid>");
 ?>

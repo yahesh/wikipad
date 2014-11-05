@@ -32,6 +32,16 @@
     return $result;
   } // function getURL($url)
 
+  // check if access rights are set correctly
+  function checkAccess($path) {
+    $result = chgrp($path, PROCESS_GROUP);
+    if ($result) {
+      $result = chown($path, PROCESS_USER);
+    } // if ($result)
+
+    return $result;
+  } // function checkAccess($path)
+
   // check if a directory exists
   // try to create if it is doesn't
   function checkDir($dir) {
@@ -110,22 +120,34 @@
       } // if (checkFile(SYNC_COOKIE_FILE))
     } // if ($namesMatch && $dirsExist)
 
+    // check that access rights are set correctly
+    $accessCorrect = false;
+    if ($namesMatch && $dirsExist && $filesWritable) {
+      if (checkAccess(WIKI_SUB_DIR)) {
+        if (checkAccess(SYNC_STATUS_DIR)) {
+          if (checkAccess(SYNC_COOKIE_FILE)) {
+            $accessCorrect = true;
+          } // if (checkAccess($SYNC_COOKIE_FILE))
+        } // if (checkAccess(SYNC_STATUS_DIR))
+      } // if (checkAccess(WIKI_SUB_DIR))
+    } // if ($namesMatch && $dirsExist && $filesWritable)
+
     // check that URLs are reachable
     $urlsWork = false;
-    if ($namesMatch && $dirsExist && $filesWritable) {
+    if ($namesMatch && $dirsExist && $filesWritable && $accessCorrect) {
       if (checkURL(PAD_URL)) {
         $urlsWork = true;
       } // if (checkURL(PAD_URL))
-    } // if ($namesMatch && $dirsExist && $filesWritable)
+    } // if ($namesMatch && $dirsExist && $filesWritable && $accessCorrect)
 
     // check that MySQL connections work
     $dbsWork = false;
-    if ($namesMatch && $dirsExist && $filesWritable && $urlsWork) {
+    if ($namesMatch && $dirsExist && $filesWritable && $accessCorrect && $urlsWork) {
       if (checkMySQL(PAD_DB_HOST, PAD_DB_USER, PAD_DB_PASS, PAD_DB_DB, PAD_DB_PORT, PAD_DB_SOCK)) {
         $dbsWork = true;
       } // if (checkMySQL(PAD_DB_HOST, PAD_DB_USER, PAD_DB_PASS, PAD_DB_DB, PAD_DB_PORT, PAD_DB_SOCK))
-    } // if ($namesMatch && $dirsExist && $filesWritable && $urlsWork)
+    } // if ($namesMatch && $dirsExist && $filesWritable && $accessCorrect && $urlsWork)
 
-    return ($namesMatch && $dirsExist && $filesWritable && $urlsWork);
+    return ($namesMatch && $dirsExist && $filesWritable && $accessCorrect && $urlsWork && $dbsWork);
   } // function checkPreconditions()
 ?>

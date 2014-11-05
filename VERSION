@@ -1,2 +1,5 @@
+VERSION: 0.1a2
+* added uid and gid support
+
 VERSION: 0.1a1
 * initial version

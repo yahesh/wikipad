@@ -1,6 +1,7 @@
 README:
 
 1.) Copy all wikipad.* files to a location that can not be accessed remotely.
-2.) Configure wikipad.conf.phs and make sure that all paths are accessible.
-3.) Configure CRON to call wikipad.phs regularly:
+2.) Install https://hg.nhg.name/unchroot/
+3.) Configure wikipad.conf.phs and make sure that all paths are accessible.
+4.) Configure CRON to call wikipad.phs regularly:
     */5 * * * * root php /path/to/wikipad.phs >/dev/null 2>&1

@@ -23,7 +23,7 @@
     if (checkPreconditions()) {
       // drop privileges
       if (force_unroot(PROCESS_USER, PROCESS_GROUP)) {
-        // disallow concurrency (either by timeout or by lock file
+        // disallow concurrency (either by timeout or by lock file)
         if (disallow_concurrency(TIMEOUT)) {
           // open DB connection
           $connection = new mysqli(PAD_DB_HOST, PAD_DB_USER, PAD_DB_PASS, PAD_DB_DB, PAD_DB_PORT, PAD_DB_SOCK);

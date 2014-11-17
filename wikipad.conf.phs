@@ -44,14 +44,15 @@
   // define path of wikipad cookie jar file
   // this file must be writable by wikipad
   // in order to reuse sessions
-  define("SYNC_COOKIE_FILE", dirname(__FILE__) . "/wikipad.cookies");
+  define("SYNC_COOKIE_FILE", "/srv/wikipad/status/cookies");
 
   // define path of wikipad status folder
   // do not forget the trailing slash
-  define("SYNC_STATUS_DIR", dirname(__FILE__) . "/status/");
+  define("SYNC_STATUS_DIR", "/srv/wikipad/status/status/");
 
-  // define timeout for PHP execution
-  define("TIMEOUT", 180); // 3 minutes by default
+  // define timeout for PHP execution (as int)
+  // alternatively defines a lock file (as string)
+  define("TIMEOUT", "/srv/wikipad/status/lock");
 
   // define user and group that owns the files
   // this enhances the security

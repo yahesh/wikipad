@@ -23,102 +23,108 @@
     if (checkPreconditions()) {
       // drop privileges
       if (force_unroot(PROCESS_USER, PROCESS_GROUP)) {
-        // open DB connection
-        $connection = new mysqli(PAD_DB_HOST, PAD_DB_USER, PAD_DB_PASS, PAD_DB_DB, PAD_DB_PORT, PAD_DB_SOCK);
+        // disallow concurrency (either by timeout or by lock file
+        if (disallow_concurrency(TIMEOUT)) {
+          // open DB connection
+          $connection = new mysqli(PAD_DB_HOST, PAD_DB_USER, PAD_DB_PASS, PAD_DB_DB, PAD_DB_PORT, PAD_DB_SOCK);
 
-        if (NULL === $connection->connect_error) {
-          // query all pad names
-          $padnames_query = $connection->query(PAD_SQL_PADNAMES);
+          if (NULL === $connection->connect_error) {
+            // query all pad names
+            $padnames_query = $connection->query(PAD_SQL_PADNAMES);
 
-          if (false !== $padnames_query) {
-            $padnames_array = NULL; // default
+            if (false !== $padnames_query) {
+              $padnames_array = NULL; // default
 
-            do { // while (NULL !== $padnames_array);
-              $padnames_array = $padnames_query->fetch_assoc();
+              do { // while (NULL !== $padnames_array);
+                $padnames_array = $padnames_query->fetch_assoc();
 
-              if (NULL !== $padnames_array) {
-                // name of pad
-                $padnames = $padnames_array[PAD_FIELD_PADNAMES];
+                if (NULL !== $padnames_array) {
+                  // name of pad
+                  $padnames = $padnames_array[PAD_FIELD_PADNAMES];
 
-                // check if the pad name is alphanumeric
-                if (checkName($padnames)) {
-                  // check if pad needs to be ignored
-                  if (0 !== strpos($padnames, PAD_IGNORE_PREFIX)) {
-                    $revisions_query = $connection->query(PAD_SQL_REVISIONS_A . $padnames . PAD_SQL_REVISIONS_B);
-                    if (false !== $revisions_query) {
-                      // has changed or is new
-                      $changed = true;
-                      $new     = true;
+                  // check if the pad name is alphanumeric
+                  if (checkName($padnames)) {
+                    // check if pad needs to be ignored
+                    if (0 !== strpos($padnames, PAD_IGNORE_PREFIX)) {
+                      $revisions_query = $connection->query(PAD_SQL_REVISIONS_A . $padnames . PAD_SQL_REVISIONS_B);
+                      if (false !== $revisions_query) {
+                        // has changed or is new
+                        $changed = true;
+                        $new     = true;
 
-                      $revisions_array = $revisions_query->fetch_assoc();
+                        $revisions_array = $revisions_query->fetch_assoc();
 
-                      if (NULL !== $revisions_array) {
-                        // number of revisions
-                        $revisions = $revisions_array[PAD_FIELD_REVISIONS];
+                        if (NULL !== $revisions_array) {
+                          // number of revisions
+                          $revisions = $revisions_array[PAD_FIELD_REVISIONS];
 
-                        // can we read the last revision from
-                        // status file and has the revision
-                        // changed since last time
-                        if (is_readable(SYNC_STATUS_DIR . $padnames)) {
-                          $file_revisions = file_get_contents(SYNC_STATUS_DIR . $padnames);
+                          // can we read the last revision from
+                          // status file and has the revision
+                          // changed since last time
+                          if (is_readable(SYNC_STATUS_DIR . $padnames)) {
+                            $file_revisions = file_get_contents(SYNC_STATUS_DIR . $padnames);
 
-                          if ((false !== $file_revisions) && ctype_digit($file_revisions)) {
-                            if ($revisions === $file_revisions) {
-                              $changed = false;
-                            } // if ($revisions === $file_revisions)
+                            if ((false !== $file_revisions) && ctype_digit($file_revisions)) {
+                              if ($revisions === $file_revisions) {
+                                $changed = false;
+                              } // if ($revisions === $file_revisions)
 
-                            $new = false;
-                          } // if ((false !== $file_revisions) && is_int($file_revisions))
-                        } // if (is_readable(SYNC_STATUS_DIR . $padnames))
-                      } // if (NULL !== $revisions_array)
+                              $new = false;
+                            } // if ((false !== $file_revisions) && is_int($file_revisions))
+                          } // if (is_readable(SYNC_STATUS_DIR . $padnames))
+                        } // if (NULL !== $revisions_array)
 
-                      $revisions_query->free();
+                        $revisions_query->free();
 
-                      if ($changed) {
-                        // pad shall be ignored or removed
-                        $ignore = false;
-                        $remove = false;
+                        if ($changed) {
+                          // pad shall be ignored or removed
+                          $ignore = false;
+                          $remove = false;
 
-                        // export pad content
-                        $content = getURL(PAD_URL_A . $padnames . PAD_URL_B);
+                          // export pad content
+                          $content = getURL(PAD_URL_A . $padnames . PAD_URL_B);
 
-                        if (NULL !== $content) {
-                          // check if pad shall be ignored or removed
-                          if (0 === strpos($content, PAD_IGNORE_CONTENT)) {
-                            $ignore = true;
-                          } else { // if (0 === strpos($content, PAD_IGNORE_CONTENT))
-                            if (0 === strpos($content, PAD_REMOVE_CONTENT)) {
-                              $remove = true;
-                            } // if (0 === strpos($content, PAD_REMOVE_CONTENT))
-                          } // if (0 === strpos($content, PAD_IGNORE_CONTENT))
+                          if (NULL !== $content) {
+                            // check if pad shall be ignored or removed
+                            if (0 === strpos($content, PAD_IGNORE_CONTENT)) {
+                              $ignore = true;
+                            } else { // if (0 === strpos($content, PAD_IGNORE_CONTENT))
+                              if (0 === strpos($content, PAD_REMOVE_CONTENT)) {
+                                $remove = true;
+                              } // if (0 === strpos($content, PAD_REMOVE_CONTENT))
+                            } // if (0 === strpos($content, PAD_IGNORE_CONTENT))
 
-                          // do nothing if we have to ignore the pad
-                          if (!$ignore) {
-                            // either remove the pad or update it
-                            if ($remove) {
-                              if (file_exists(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT)) {
-                                unlink(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT);
-                              } // if (file_exists(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT))
-                            } else { // if ($remove)
-                              file_put_contents(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT, $content);
-                            } // if ($remove)
-                          } // if (!$ignore)
+                            // do nothing if we have to ignore the pad
+                            if (!$ignore) {
+                              // either remove the pad or update it
+                              if ($remove) {
+                                if (file_exists(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT)) {
+                                  unlink(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT);
+                                } // if (file_exists(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT))
+                              } else { // if ($remove)
+                                file_put_contents(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT, $content);
+                              } // if ($remove)
+                            } // if (!$ignore)
 
-                          // save current revision number
-                          file_put_contents(SYNC_STATUS_DIR . $padnames, $revisions);
-                        } // if (NULL !== $content)
-                      } // if ($changed)
-                    } // if (false !== $revisions_query)
-                  } // if (0 !== strpos($padnames, PAD_IGNORE_PREFIX))
-                } // if (checkName($padnames))
-              } // if (NULL !== $padnames_array)
-            } while (NULL !== $padnames_array);
+                            // save current revision number
+                            file_put_contents(SYNC_STATUS_DIR . $padnames, $revisions);
+                          } // if (NULL !== $content)
+                        } // if ($changed)
+                      } // if (false !== $revisions_query)
+                    } // if (0 !== strpos($padnames, PAD_IGNORE_PREFIX))
+                  } // if (checkName($padnames))
+                } // if (NULL !== $padnames_array)
+              } while (NULL !== $padnames_array);
 
-            $padnames_query->free();
-          } // if (false !== $padnames_query)
+              $padnames_query->free();
+            } // if (false !== $padnames_query)
 
-          $connection->close();
-        } // if (NULL === $connection->connect_error)
+            $connection->close();
+          } // if (NULL === $connection->connect_error)
+
+          // free lock
+          allow_concurrency(TIMEOUT);
+        } // if (disallow_concurrency(TIMEOUT))
       } // if (force_unroot(PROCESS_USER, PROCESS_GROUP))
     } // if (checkPreconditions())
   } // function wikipad()

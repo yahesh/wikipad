@@ -90,9 +90,6 @@
 
   // check several preconditions
   function checkPreconditions() {
-    // start by setting our timeout
-    set_time_limit(TIMEOUT);
-
     // check that names are alphanumerics
     $namesMatch = false;
     if (checkName(PAD_SUB_NAME)) {

@@ -1,3 +1,6 @@
+VERSION 0.2
+* updated compatibility to Etherpad Lite 1.5.*
+
 VERSION: 0.1a2
 * added uid and gid support
 

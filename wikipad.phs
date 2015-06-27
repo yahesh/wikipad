@@ -100,33 +100,59 @@
                               if ($remove) {
                                 if (file_exists(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT)) {
                                   unlink(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT);
+                                  print("remove pad: " . $padnames . "\n");
                                 } // if (file_exists(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT))
                               } else { // if ($remove)
                                 file_put_contents(WIKI_SUB_DIR . $padnames . WIKI_SUB_EXT, $content);
+                                print("update pad: " . $padnames . "\n");
                               } // if ($remove)
+                            } else {
+                              print("ignore pad by content: " . $padnames . "\n");
                             } // if (!$ignore)
 
                             // save current revision number
                             file_put_contents(SYNC_STATUS_DIR . $padnames, $revisions);
+                          } else {
+                            print("export failed: " . $padnames . "\n");
                           } // if (NULL !== $content)
+                        } else {
+                          print("unchanged: " . $padnames . "\n");
                         } // if ($changed)
+                      } else {
+                        print("pad revision query failed\n");
                       } // if (false !== $revisions_query)
+                    } else {
+                      print("ignore pad by name: " . $padnames . "\n");
                     } // if (0 !== strpos($padnames, PAD_IGNORE_PREFIX))
+                  } else {
+                    print("unsupported pad name: " . $padnames . "\n");
                   } // if (checkName($padnames))
+                } else {
+                  print("no more pads found\n");
                 } // if (NULL !== $padnames_array)
               } while (NULL !== $padnames_array);
 
               $padnames_query->free();
+            } else {
+              print("pad name query failed\n");
             } // if (false !== $padnames_query)
 
             $connection->close();
+          } else {
+            print("database connection failed\n");
           } // if (NULL === $connection->connect_error)
 
           // free lock
           allow_concurrency(TIMEOUT);
+        } else {
+          print("disallow_concurrency() failed\n");
         } // if (disallow_concurrency(TIMEOUT))
+      } else {
+        print("force_unroot() failed\n");
       } // if (force_unroot(PROCESS_USER, PROCESS_GROUP))
-    } // if (checkPreconditions())
+    } else {
+      print("checkPreconditions() failed\n");
+    }  // if (checkPreconditions())
   } // function wikipad()
 
   wikipad();

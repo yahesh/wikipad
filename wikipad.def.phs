@@ -22,7 +22,7 @@
   } // if (0 === strlen(WIKI_SUB_NAME))
 
   define("PAD_URL_A", PAD_URL . "p/" . PAD_PREFIX);
-  define("PAD_URL_B", "/export/dokuwiki");
+  define("PAD_URL_B", "/export/mediawiki");
   
   define("WIKI_SUB_EXT", ".txt");
 

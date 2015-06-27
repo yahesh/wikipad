@@ -1,10 +1,7 @@
 README:
 
-1.) Install the "mediawiki" plugin in your Etherpad Lite through "/admin/plugins"
-2.) Add ep_mediawiki to your settings.json:
-    "ep_MediaWiki_default": true
-3.) Copy all wikipad.* files to a location that can not be accessed remotely.
-4.) Install https://hg.nhg.name/unchroot/
-5.) Configure wikipad.conf.phs and make sure that all paths are accessible.
-6.) Configure CRON to call wikipad.phs regularly:
+1.) Copy all wikipad.* files to a location that can not be accessed remotely.
+2.) Install https://hg.nhg.name/unchroot/
+3.) Configure wikipad.conf.phs and make sure that all paths are accessible.
+4.) Configure CRON to call wikipad.phs regularly:
     */5 * * * * root php /path/to/wikipad.phs >/dev/null 2>&1

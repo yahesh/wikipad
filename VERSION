@@ -1,3 +1,6 @@
+VERSION 0.2c1
+* moved to pure text output as mediawiki output is totally broken
+
 VERSION 0.2
 * updated compatibility to Etherpad Lite 1.5.*
 

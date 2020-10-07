@@ -5,3 +5,8 @@ README:
 3.) Configure wikipad.conf.phs and make sure that all paths are accessible.
 4.) Configure CRON to call wikipad.phs regularly:
     */5 * * * * root php /path/to/wikipad.phs >/dev/null 2>&1
+
+ALTERNATIVE:
+
+As this code is unmaintained you might alternatively want to have a look at
+https://github.com/michael-dev/dokuwikietherpadlite/
